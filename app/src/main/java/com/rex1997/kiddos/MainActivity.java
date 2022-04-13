@@ -19,9 +19,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,16 +67,13 @@ public class MainActivity extends AppCompatActivity {
     private PreviewView previewView;
     private CameraSelector cameraSelector;
     private ProcessCameraProvider cameraProvider;
-    private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private Preview previewUseCase;
     private ImageAnalysis analysisUseCase;
     private GraphicOverlay graphicOverlay;
     private ImageView previewImg;
     private TextView detectionTextView;
 
-    private final HashMap<String, SimilarityClassifier.Recognition> registered = new HashMap<>(); //saved Faces
     private Interpreter tfLite;
-    private boolean flipX = false;
     private boolean start = true;
     private float[][] embeddings;
 
@@ -90,18 +85,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         previewView = findViewById(R.id.previewView);
         previewView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         previewImg = findViewById(R.id.preview_img);
         detectionTextView = findViewById(R.id.detection_text);
-
-        ImageButton addBtn = findViewById(R.id.add_btn);
-        addBtn.setOnClickListener((v -> addFace()));
-
-        ImageButton switchCamBtn = findViewById(R.id.switch_camera);
-        switchCamBtn.setOnClickListener((view -> switchCamera()));
 
         loadModel();
     }
@@ -146,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
 
+        int lensFacing = CameraSelector.LENS_FACING_FRONT;
         cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
         cameraProviderFuture.addListener(() -> {
@@ -220,19 +211,6 @@ public class MainActivity extends AppCompatActivity {
         return previewView.getDisplay().getRotation();
     }
 
-    private void switchCamera() {
-        if (lensFacing == CameraSelector.LENS_FACING_BACK) {
-            lensFacing = CameraSelector.LENS_FACING_FRONT;
-            flipX = true;
-        } else {
-            lensFacing = CameraSelector.LENS_FACING_BACK;
-            flipX = false;
-        }
-
-        if(cameraProvider != null) cameraProvider.unbindAll();
-        startCamera();
-    }
-
     /** Face detection processor */
     @SuppressLint("UnsafeOptInUsageError")
     private void analyze(@NonNull ImageProxy image) {
@@ -272,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
                     boundingBox);
 
             if(start) name = recognizeImage(bitmap);
-            if(name != null) detectionTextView.setText(name);
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
@@ -290,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up the input
         final EditText input = new EditText(this);
 
-        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setMaxWidth(200);
         builder.setView(input);
 
@@ -303,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
                     "0", "", -1f);
             result.setExtra(embeddings);
 
-            registered.put( input.getText().toString(),result);
             start = true;
 
         });
@@ -352,51 +328,7 @@ public class MainActivity extends AppCompatActivity {
 
         tfLite.runForMultipleInputsOutputs(inputArray, outputMap); //Run model
 
-
-
-        float distance;
-
-        //Compare new face with saved Faces.
-        if (registered.size() > 0) {
-
-            final Pair<String, Float> nearest = findNearest(embeddings[0]);//Find closest matching face
-
-            if (nearest != null) {
-
-                final String name = nearest.first;
-                distance = nearest.second;
-                if(distance<1.000f) //If distance between Closest found face is more than 1.000 ,then output UNKNOWN face.
-                    return name;
-                else
-                    return "unknown";
-            }
-        }
-
         return null;
-    }
-
-    //Compare Faces by distance between face embeddings
-    private Pair<String, Float> findNearest(float[] emb) {
-
-        Pair<String, Float> ret = null;
-        for (Map.Entry<String, SimilarityClassifier.Recognition> entry : registered.entrySet()) {
-
-            final String name = entry.getKey();
-            final float[] knownEmb = ((float[][]) entry.getValue().getExtra())[0];
-
-            float distance = 0;
-            for (int i = 0; i < emb.length; i++) {
-                float diff = emb[i] - knownEmb[i];
-                distance += diff*diff;
-            }
-            distance = (float) Math.sqrt(distance);
-            if (ret == null || distance < ret.second) {
-                ret = new Pair<>(name, distance);
-            }
-        }
-
-        return ret;
-
     }
 
     /** Bitmap Converter */
@@ -405,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
         Bitmap frame_bmp = toBitmap(image);
 
         //Adjust orientation of Face
+        boolean flipX = false;
         Bitmap frame_bmp1 = rotateBitmap(frame_bmp, rotation, flipX);
 
         //Crop out bounding box from whole Bitmap(image)
@@ -570,7 +503,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /** Model loader */
-    @SuppressWarnings("deprecation")
     private void loadModel() {
         try {
             //model name
