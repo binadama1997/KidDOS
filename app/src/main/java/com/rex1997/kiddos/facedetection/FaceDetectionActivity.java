@@ -1,4 +1,6 @@
-package com.rex1997.kiddos;
+package com.rex1997.kiddos.facedetection;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,15 +19,13 @@ import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.media.Image;
 import android.os.Bundle;
-import android.text.InputType;
+import android.os.Environment;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
@@ -40,19 +40,24 @@ import androidx.core.content.ContextCompat;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
-import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
+import com.rex1997.kiddos.R;
 
 import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +65,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+public class FaceDetectionActivity extends AppCompatActivity {
+    private static final String TAG = "FaceDetectionActivity";
     private static final int PERMISSION_CODE = 1001;
     private static final String CAMERA_PERMISSION = Manifest.permission.CAMERA;
     private PreviewView previewView;
@@ -74,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView detectionTextView;
 
     private Interpreter tfLite;
-    private boolean start = true;
-    private float[][] embeddings;
 
     private static final float IMAGE_MEAN = 128.0f;
     private static final float IMAGE_STD = 128.0f;
@@ -86,13 +89,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_facedetection);
         previewView = findViewById(R.id.previewView);
         previewView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         previewImg = findViewById(R.id.preview_img);
         detectionTextView = findViewById(R.id.detection_text);
-
         loadModel();
     }
 
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     /** Permissions Handler */
     private void getPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{CAMERA_PERMISSION}, PERMISSION_CODE);
+        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE}, PERMISSION_CODE);
     }
 
     @Override
@@ -119,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_CODE) {
             setupCamera();
         }
-
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -221,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                 image.getImageInfo().getRotationDegrees()
         );
 
-        FaceDetector faceDetector = FaceDetection.getClient();
+        FaceDetector faceDetector = com.google.mlkit.vision.face.FaceDetection.getClient();
 
         faceDetector.process(inputImage)
                 .addOnSuccessListener(faces -> onSuccessListener(faces, inputImage))
@@ -249,7 +251,8 @@ public class MainActivity extends AppCompatActivity {
                     inputImage.getRotationDegrees(),
                     boundingBox);
 
-            if(start) name = recognizeImage(bitmap);
+            name = recognizeImage(bitmap);
+            previewImg.setImageBitmap(bitmap);
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
@@ -258,45 +261,11 @@ public class MainActivity extends AppCompatActivity {
         graphicOverlay.draw(boundingBox, scaleX, scaleY, name);
     }
 
-    /** Recognize Processor */
-    private void addFace() {
-        start=false;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Name");
-
-        // Set up the input
-        final EditText input = new EditText(this);
-
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setMaxWidth(200);
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton("ADD", (dialog, which) -> {
-            //Toast.makeText(context, input.getText().toString(), Toast.LENGTH_SHORT).show();
-
-            //Create and Initialize new object with Face embeddings and Name.
-            SimilarityClassifier.Recognition result = new SimilarityClassifier.Recognition(
-                    "0", "", -1f);
-            result.setExtra(embeddings);
-
-            start = true;
-
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            start = true;
-            dialog.cancel();
-        });
-
-        builder.show();
-    }
-
-    public String recognizeImage(final Bitmap bitmap) {
+        public String recognizeImage(final Bitmap bitmap) {
         // set image to preview
         previewImg.setImageBitmap(bitmap);
 
         //Create ByteBuffer to store normalized image
-
         ByteBuffer imgData = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * 3 * 4);
 
         imgData.order(ByteOrder.nativeOrder());
@@ -321,8 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
         Map<Integer, Object> outputMap = new HashMap<>();
 
-
-        embeddings = new float[1][OUTPUT_SIZE]; //output of model will be stored in this variable
+        float[][] embeddings = new float[1][OUTPUT_SIZE]; //output of model will be stored in this variable
 
         outputMap.put(0, embeddings);
 
@@ -337,8 +305,10 @@ public class MainActivity extends AppCompatActivity {
         Bitmap frame_bmp = toBitmap(image);
 
         //Adjust orientation of Face
-        boolean flipX = false;
-        Bitmap frame_bmp1 = rotateBitmap(frame_bmp, rotation, flipX);
+        Bitmap frame_bmp1 = rotateBitmap(frame_bmp, rotation);
+
+        //Save bitmap
+        storeImage(frame_bmp1);
 
         //Crop out bounding box from whole Bitmap(image)
         float padding = 0.0f;
@@ -394,15 +364,14 @@ public class MainActivity extends AppCompatActivity {
         return resultBitmap;
     }
 
-    private static Bitmap rotateBitmap(
-            Bitmap bitmap, int rotationDegrees, boolean flipX) {
+    private static Bitmap rotateBitmap(Bitmap bitmap, int rotationDegrees) {
         Matrix matrix = new Matrix();
 
         // Rotate the image back to straight.
         matrix.postRotate(rotationDegrees);
 
         // Mirror the image along the X or Y axis.
-        matrix.postScale(flipX ? -1.0f : 1.0f, 1.0f);
+        matrix.postScale(1.0f, 1.0f);
         Bitmap rotatedBitmap =
                 Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
@@ -488,9 +457,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Bitmap toBitmap(Image image) {
-
         byte[] nv21=YUV_420_888toNV21(image);
-
 
         YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
 
@@ -507,7 +474,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             //model name
             String modelFile = "mobile_face_net.tflite";
-            tfLite = new Interpreter(loadModelFile(MainActivity.this, modelFile));
+            tfLite = new Interpreter(loadModelFile(FaceDetectionActivity.this, modelFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -520,5 +487,47 @@ public class MainActivity extends AppCompatActivity {
         long startOffset = fileDescriptor.getStartOffset();
         long declaredLength = fileDescriptor.getDeclaredLength();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+    }
+
+    // Save image
+    private void storeImage(Bitmap image) {
+        File pictureFile = getOutputMediaFile();
+        if (pictureFile == null) {
+            Log.d(TAG,
+                    "Error creating media file, check storage permissions: ");// e.getMessage());
+            return;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.d(TAG, "Error accessing file: " + e.getMessage());
+        }
+    }
+
+    private  File getOutputMediaFile(){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/data/"
+                + getApplicationContext().getPackageName()
+                + "/Files");
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        // Create a media file name
+        @SuppressLint("SimpleDateFormat")
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        File mediaFile;
+        String mImageName="KD_"+ timeStamp +".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        return mediaFile;
     }
 }

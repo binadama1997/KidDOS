@@ -1,4 +1,4 @@
-package com.rex1997.kiddos;
+package com.rex1997.kiddos.facedetection;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,9 +13,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-
 public class GraphicOverlay extends View {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "FaceDetectionActivity";
     private final Paint rectPaint = new Paint();
     private float scaleX = 1.0f;
     private float scaleY = 1.0f;
