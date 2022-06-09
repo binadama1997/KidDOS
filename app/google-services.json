@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "613996288991",
+    "project_id": "kiddos-dec2d",
+    "storage_bucket": "kiddos-dec2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613996288991:android:cdcec615bdaa89c00a026a",
+        "android_client_info": {
+          "package_name": "com.rex1997.kiddos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "613996288991-gl5budf0nd93s0j4o90bkaiukn6nccor.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaSGidYINqcmbn5W5udWw5NwsVnIubszQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "613996288991-gl5budf0nd93s0j4o90bkaiukn6nccor.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
