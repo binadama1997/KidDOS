@@ -5,6 +5,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import android.graphics.YuvImage;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,6 +43,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
+import com.rex1997.kiddos.MainActivity;
 import com.rex1997.kiddos.R;
 
 import org.tensorflow.lite.Interpreter;
@@ -253,28 +256,22 @@ public class FaceDetectionActivity extends AppCompatActivity {
 
             name = recognizeImage(bitmap);
             previewImg.setImageBitmap(bitmap);
+            changeActivity();
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
         }
-
         graphicOverlay.draw(boundingBox, scaleX, scaleY, name);
     }
 
         public String recognizeImage(final Bitmap bitmap) {
-        // set image to preview
-        previewImg.setImageBitmap(bitmap);
-
         //Create ByteBuffer to store normalized image
         ByteBuffer imgData = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * 3 * 4);
-
         imgData.order(ByteOrder.nativeOrder());
-
         int[] intValues = new int[INPUT_SIZE * INPUT_SIZE];
 
         //get pixel values from Bitmap to normalize
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
         imgData.rewind();
 
         for (int i = 0; i < INPUT_SIZE; ++i) {
@@ -285,15 +282,12 @@ public class FaceDetectionActivity extends AppCompatActivity {
                 imgData.putFloat(((pixelValue & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
             }
         }
+
         //imgData is input to our model
         Object[] inputArray = {imgData};
-
         Map<Integer, Object> outputMap = new HashMap<>();
-
         float[][] embeddings = new float[1][OUTPUT_SIZE]; //output of model will be stored in this variable
-
         outputMap.put(0, embeddings);
-
         tfLite.runForMultipleInputsOutputs(inputArray, outputMap); //Run model
 
         return null;
@@ -452,7 +446,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
                 nv21[pos++] = uBuffer.get(vuPos);
             }
         }
-
         return nv21;
     }
 
@@ -508,7 +501,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         }
     }
 
-    private  File getOutputMediaFile(){
+    private File getOutputMediaFile(){
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
@@ -530,4 +523,15 @@ public class FaceDetectionActivity extends AppCompatActivity {
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         return mediaFile;
     }
+
+    private void changeActivity(){
+        int delay = 0;
+        new Handler().postDelayed(() -> {
+            Intent result=new Intent(FaceDetectionActivity.this, MainActivity.class);
+            startActivity(result);
+            finish();
+        }, delay);
+        onDestroy();
+    }
+
 }

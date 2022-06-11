@@ -19,8 +19,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
         int delay = 3000;
         new Handler().postDelayed(() -> {
-            Intent login=new Intent(SplashScreenActivity.this, FaceDetectionActivity.class);
-            startActivity(login);
+            Intent start=new Intent(SplashScreenActivity.this, FaceDetectionActivity.class);
+            startActivity(start);
             finish();
 
         }, delay);
