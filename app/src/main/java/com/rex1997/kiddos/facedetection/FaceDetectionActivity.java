@@ -257,6 +257,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             name = recognizeImage(bitmap);
             previewImg.setImageBitmap(bitmap);
             changeActivity();
+            finish();
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
@@ -531,7 +532,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             startActivity(result);
             finish();
         }, delay);
-        onDestroy();
+        finish();
     }
 
 }

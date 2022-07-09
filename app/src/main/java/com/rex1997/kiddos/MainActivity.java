@@ -2,14 +2,15 @@ package com.rex1997.kiddos;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.rex1997.kiddos.oauth2library.OAuthResponse;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -18,31 +19,27 @@ import java.io.FileFilter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private OAuthResponse oAuth2Response;
-    private TextView textToken;
     private ImageView latestImage;
+    private TextView textView;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
-        getToken();
-        textToken= findViewById(R.id.textView);
+        textView = findViewById(R.id.textView);
         latestImage = findViewById(R.id.imageView);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         getLatestImage();
     }
 
-    private String getToken(){
-        String token = oAuth2Response.getAccessToken();
-        String token2 = oAuth2Response.getRefreshToken();
-        textToken.setText(token + token2);
-        return token;
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     private void getLatestImage (){

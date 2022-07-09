@@ -15,4 +15,16 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="token">Token</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="name">Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="password">Password</string>
+    <string name="check_password">Check Password</string>
+    <string name="your_name">Your Name</string>
+    <string name="register">Register</string>
+    <string name="go_to_login">Already Registered? Login Here</string>
+    <string name="go_to_register">Don\'t Have an Account? Register Here</string>
+    <string name="login">login</string>
+    <string name="text_login">Login</string>
 </resources>

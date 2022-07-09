@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "613996288991",
+    "firebase_url": "https://kiddos-dec2d-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "kiddos-dec2d",
     "storage_bucket": "kiddos-dec2d.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "613996288991-u60rmuvd1vfa4rggqcbhto8ivk0veinb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rex1997.kiddos",
+            "certificate_hash": "5c56619419a0ff532dfe25ccdbc50975e280663f"
+          }
+        },
         {
           "client_id": "613996288991-gl5budf0nd93s0j4o90bkaiukn6nccor.apps.googleusercontent.com",
           "client_type": 3
