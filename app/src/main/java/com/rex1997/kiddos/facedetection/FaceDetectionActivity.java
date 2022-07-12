@@ -1,7 +1,5 @@
 package com.rex1997.kiddos.facedetection;
 
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,7 +23,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,8 +67,6 @@ import java.util.concurrent.Executors;
 
 public class FaceDetectionActivity extends AppCompatActivity {
     private static final String TAG = "FaceDetectionActivity";
-    private static final int PERMISSION_CODE = 1001;
-    private static final String CAMERA_PERMISSION = Manifest.permission.CAMERA;
     private PreviewView previewView;
     private CameraSelector cameraSelector;
     private ProcessCameraProvider cameraProvider;
@@ -86,7 +81,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
     private static final float IMAGE_MEAN = 128.0f;
     private static final float IMAGE_STD = 128.0f;
     private static final int INPUT_SIZE = 112;
-    private static final int OUTPUT_SIZE=192;
+    private static final int OUTPUT_SIZE= 192;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,40 +99,25 @@ public class FaceDetectionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
+
         startCamera();
     }
 
-    /** Permissions Handler */
-    private void getPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{CAMERA_PERMISSION}, PERMISSION_CODE);
-        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE}, PERMISSION_CODE);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
-        for (int r : grantResults) {
-            if (r == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
-        if (requestCode == PERMISSION_CODE) {
-            setupCamera();
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    /** Setup camera & use cases */
+    /** Camera setup */
     private void startCamera() {
-        if(ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
-            setupCamera();
-        } else {
-            getPermissions();
-        }
-    }
-
-    private void setupCamera() {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
 
@@ -166,11 +146,9 @@ public class FaceDetectionActivity extends AppCompatActivity {
         if (cameraProvider == null) {
             return;
         }
-
         if (previewUseCase != null) {
             cameraProvider.unbind(previewUseCase);
         }
-
         Preview.Builder builder = new Preview.Builder();
         builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
         builder.setTargetRotation(getRotation());
@@ -190,13 +168,10 @@ public class FaceDetectionActivity extends AppCompatActivity {
         if (cameraProvider == null) {
             return;
         }
-
         if (analysisUseCase != null) {
             cameraProvider.unbind(analysisUseCase);
         }
-
         Executor cameraExecutor = Executors.newSingleThreadExecutor();
-
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
         builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
         builder.setTargetRotation(getRotation());
@@ -257,7 +232,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
             name = recognizeImage(bitmap);
             previewImg.setImageBitmap(bitmap);
             changeActivity();
-            finish();
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
@@ -439,7 +413,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
 
         // other optimizations could check if (pixelStride == 1) or (pixelStride == 2),
         // but performance gain would be less significant
-
         for (int row=0; row<height/2; row++) {
             for (int col=0; col<width/2; col++) {
                 int vuPos = col*pixelStride + row*rowStride;
@@ -483,7 +456,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
-    // Save image
+    /** Model save image */
     private void storeImage(Bitmap image) {
         File pictureFile = getOutputMediaFile();
         if (pictureFile == null) {
@@ -525,14 +498,14 @@ public class FaceDetectionActivity extends AppCompatActivity {
         return mediaFile;
     }
 
+    /** Change intent */
     private void changeActivity(){
         int delay = 0;
         new Handler().postDelayed(() -> {
-            Intent result=new Intent(FaceDetectionActivity.this, MainActivity.class);
+            Intent result=new Intent(this, MainActivity.class);
             startActivity(result);
             finish();
         }, delay);
-        finish();
+        onDestroy();
     }
-
 }

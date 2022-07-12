@@ -5,13 +5,11 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
+//import android.os.StrictMode;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import java.io.File;
@@ -20,17 +18,17 @@ import java.io.FileFilter;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView latestImage;
-    private TextView textView;
+    private final String clientID = "6aywCResze0K9kh8u70Ky8WG";
+    private final String clientSecret = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        //StrictMode.setThreadPolicy(policy);
 
-        textView = findViewById(R.id.textView);
         latestImage = findViewById(R.id.imageView);
         getLatestImage();
     }
@@ -39,13 +37,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     private void getLatestImage (){
         File imagePath = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/"
-                + getApplicationContext().getPackageName()
+                + getPackageName()
                 + "/Files");
         FileFilter imageFilter = new WildcardFileFilter("*.jpg");
         File[] images = imagePath.listFiles(imageFilter);
