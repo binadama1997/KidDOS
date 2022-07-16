@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-//import android.os.StrictMode;
+import android.os.StrictMode;
 import android.widget.ImageView;
 
 import androidx.annotation.RequiresApi;
@@ -15,28 +15,25 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import java.io.File;
 import java.io.FileFilter;
 
+import com.rex1997.kiddos.connection.ApiService;
+
 public class MainActivity extends AppCompatActivity {
 
     private ImageView latestImage;
-    private final String clientID = "6aywCResze0K9kh8u70Ky8WG";
-    private final String clientSecret = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        //StrictMode.setThreadPolicy(policy);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         latestImage = findViewById(R.id.imageView);
         getLatestImage();
-    }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    protected void onResume() {
-        super.onResume();
+        ApiService post = new ApiService();
+        post.postMethod();
     }
 
     private void getLatestImage (){

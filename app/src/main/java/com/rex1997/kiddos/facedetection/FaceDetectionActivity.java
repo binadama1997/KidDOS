@@ -18,7 +18,6 @@ import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.media.Image;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
@@ -46,18 +45,13 @@ import com.rex1997.kiddos.R;
 import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.channels.FileChannel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +60,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class FaceDetectionActivity extends AppCompatActivity {
-    private static final String TAG = "FaceDetectionActivity";
+    private static final String TAG = "Face Detection Activity";
     private PreviewView previewView;
     private CameraSelector cameraSelector;
     private ProcessCameraProvider cameraProvider;
@@ -277,7 +271,8 @@ public class FaceDetectionActivity extends AppCompatActivity {
         Bitmap frame_bmp1 = rotateBitmap(frame_bmp, rotation);
 
         //Save bitmap
-        storeImage(frame_bmp1);
+        SaveImage save = new SaveImage();
+        save.storeImage(frame_bmp1);
 
         //Crop out bounding box from whole Bitmap(image)
         float padding = 0.0f;
@@ -454,48 +449,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
         long startOffset = fileDescriptor.getStartOffset();
         long declaredLength = fileDescriptor.getDeclaredLength();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-    }
-
-    /** Model save image */
-    private void storeImage(Bitmap image) {
-        File pictureFile = getOutputMediaFile();
-        if (pictureFile == null) {
-            Log.d(TAG,
-                    "Error creating media file, check storage permissions: ");// e.getMessage());
-            return;
-        }
-        try {
-            FileOutputStream fos = new FileOutputStream(pictureFile);
-            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
-            Log.d(TAG, "Error accessing file: " + e.getMessage());
-        }
-    }
-
-    private File getOutputMediaFile(){
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + getApplicationContext().getPackageName()
-                + "/Files");
-
-        // Create the storage directory if it does not exist
-        if (! mediaStorageDir.exists()){
-            if (! mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-        // Create a media file name
-        @SuppressLint("SimpleDateFormat")
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
-        File mediaFile;
-        String mImageName="KD_"+ timeStamp +".jpg";
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
-        return mediaFile;
     }
 
     /** Change intent */
