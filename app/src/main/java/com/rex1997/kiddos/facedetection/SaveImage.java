@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,7 +14,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SaveImage {
+public class SaveImage extends AppCompatActivity {
     private static final String TAG = "Save Image";
 
     /** Model save image */
@@ -39,7 +41,7 @@ public class SaveImage {
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/"
-                + "com.rex1997.kiddos"
+                + getPackageName()
                 + "/Files");
 
         // Create the storage directory if it does not exist

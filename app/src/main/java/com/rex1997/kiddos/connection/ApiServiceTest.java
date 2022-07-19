@@ -3,8 +3,11 @@ package com.rex1997.kiddos.connection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Environment;
-import android.util.Base64;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -19,6 +22,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
@@ -58,9 +62,9 @@ import cz.msebera.android.httpclient.message.BasicNameValuePair;
 import cz.msebera.android.httpclient.ssl.SSLContextBuilder;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
-public class ApiServiceTest {
+public class ApiServiceTest extends AppCompatActivity {
     // Test get URL.
-    static String sGetURL = "https://192.168.0.1/info";
+    static String sGetURL = "https://api.everypixel.com/v1/faces";
     // Test post URL
     static String sPostURL = "https://api.everypixel.com/v1/faces";
 
@@ -71,6 +75,7 @@ public class ApiServiceTest {
     //      HTTP Verb
     //          If "postParams" is not null, will use POST, otherwise will use GET
     //
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void URLFetch(String sURL, String sUser, String sPW, List<NameValuePair> postParams,
                          boolean bIgnoreCerts) {
 
@@ -122,11 +127,10 @@ public class ApiServiceTest {
                     response = httpClient.execute(targetHost, httpget, context);
                 }
             } catch (SSLHandshakeException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
-            // Add credentials for digest header
+            // Add credentials
             assert response != null;
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 // Change to just pass user and password
@@ -137,7 +141,12 @@ public class ApiServiceTest {
                     CredentialsProvider credsProvider = new BasicCredentialsProvider();
                     credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(sUser, sPW));
                     if (element[0].getName().startsWith("Basic")) {
-                        authCache.put(targetHost, new BasicScheme());
+                        String val = sUser +":"+ sPW;
+                        byte[] authEncoder = Base64.getEncoder().encode(val.getBytes());
+                        String authString = new String(authEncoder);
+                        BasicScheme basicScheme = new BasicScheme();
+                        basicScheme.getParameter("authString");
+                        authCache.put(targetHost, basicScheme);
                     } else if (element[0].getName().startsWith("Digest")) {
                         DigestScheme digestScheme = new DigestScheme();
                         digestScheme.overrideParamter("realm", "thermostat");
@@ -178,27 +187,25 @@ public class ApiServiceTest {
                     }
                     EntityUtils.consume(entity);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             } finally {
                 try {
                     httpClient.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | MalformedChallengeException | IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    private void getLatestImage (){
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String getImageToString(){
         File imagePath = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/"
-                + "com.rex1997.kiddos"
+                + getPackageName()
                 + "/Files");
         FileFilter imageFilter = new WildcardFileFilter("*.jpg");
         File[] images = imagePath.listFiles(imageFilter);
@@ -207,36 +214,19 @@ public class ApiServiceTest {
         int imagesCount = images.length; // get the list of images from folder
         Bitmap getImage = BitmapFactory.decodeFile(images[imagesCount - 1].getAbsolutePath());
 
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        getImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+        byte[] bt = bos.toByteArray();
+        return java.util.Base64.getEncoder().encodeToString(bt);
     }
 
-    private String latestImage (Bitmap bitmap){
-        File imagePath = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + "com.rex1997.kiddos"
-                + "/Files");
-        FileFilter imageFilter = new WildcardFileFilter("*.jpg");
-        File[] images = imagePath.listFiles(imageFilter);
-
-        assert images != null;
-        int imagesCount = images.length; // get the list of images from folder
-        Bitmap getImage = BitmapFactory.decodeFile(images[imagesCount - 1].getAbsolutePath());
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] byteFormat = stream.toByteArray();
-
-        // Get the Base64 string
-
-        return Base64.encodeToString(byteFormat, Base64.NO_WRAP);
-    }
-
-    // Main, takes 4 arguments (see println below)
-    public static void main(String[] args) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void startApiService(){
         String username= "6aywCResze0K9kh8u70Ky8WG";
         String password = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
 
         List<NameValuePair> postParameters = new ArrayList<>();
-        postParameters.add(new BasicNameValuePair("away", "1"));
+        postParameters.add(new BasicNameValuePair("data", getImageToString()));
         ApiServiceTest d = new ApiServiceTest();
 
         d.URLFetch(sPostURL, username, password, postParameters, false);

@@ -1,88 +1,68 @@
 package com.rex1997.kiddos.connection;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class ApiService {
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class ApiService extends AppCompatActivity {
+    /*
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void postMethod() {
-        String baseURL = "https://api.everypixel.com/v1/faces";
-        String clientID = "6aywCResze0K9kh8u70Ky8WG";
-        String clientSecret = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
-        String result="";
+    public void startApiService(){
+        RequestBody requestFile = RequestBody.create(getLatestImage(), MediaType.parse("multipart/form-data"));
+        Call<DefaultResponse> call = RetrofitClient
+                .getInstance()
+                .apiInterface()
+                .uploadImage(requestFile);
 
-        try{
-            Map<String,String> map = new LinkedHashMap<>();
-            map.put("data", getImageToString());
-            StringBuilder postdata = new StringBuilder();
-            for(Map.Entry<String,String> param:map.entrySet()){
-                if(postdata.length() != 0) postdata.append('&');
-                postdata.append(URLEncoder.encode(param.getKey(),"UTF-8"));
-                postdata.append('=');
-                postdata.append(URLEncoder.encode(param.getValue(),"UTF-8"));
+        call.enqueue(new Callback<DefaultResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<DefaultResponse> call, @NonNull Response<DefaultResponse> response) {
+                DefaultResponse dr =  response.body();
+                if (response.code() == 200) {
+                    assert dr != null;
+                    Toast.makeText(ApiService.this, dr.getMsg(), Toast.LENGTH_LONG).show();
+                } else if (response.code() == 401) {
+                    Toast.makeText(ApiService.this, "UNAUTHORIZE", Toast.LENGTH_LONG).show();
+                } else if (response.code() == 429){
+                    Toast.makeText(ApiService.this, "Subscription limit has reached", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(ApiService.this, "Something wrong", Toast.LENGTH_LONG).show();
+                }
             }
-            byte[] data = postdata.toString().getBytes(StandardCharsets.UTF_8);
-            String val = clientID +":"+ clientSecret;
-            byte[] authEncoder = Base64.getEncoder().encode(val.getBytes());
-            String authString = new String(authEncoder);
-            URL url1 = new URL(baseURL);
-            HttpURLConnection urlConnection = (HttpURLConnection)url1.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Authorization", "Basic " + authString);
-            urlConnection.setRequestProperty("Content-Length", String.valueOf(data.length));
-            urlConnection.setRequestProperty("Content-Type", "application/octet-stream");
-            urlConnection.setDoOutput(true);
-            urlConnection.getOutputStream().write(data);
-            Reader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),
-                    StandardCharsets.UTF_8));
-            StringBuilder str = new StringBuilder();
-            for(int i;(i = in.read()) >= 0;)
-                str.append((char)i);
-            result = str.toString();
-        }
-        catch(Exception e){
-            //handle the exception
-            e.printStackTrace();
-        }
-        System.out.println(result);
+
+            @Override
+            public void onFailure(@NonNull Call<DefaultResponse> call, @NonNull Throwable t) {
+                Toast.makeText(ApiService.this, t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private String getImageToString(){
+    public File getLatestImage(){
         File imagePath = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/"
-                + "com.rex1997.kiddos"
+                + getPackageName()
                 + "/Files");
         FileFilter imageFilter = new WildcardFileFilter("*.jpg");
         File[] images = imagePath.listFiles(imageFilter);
 
         assert images != null;
         int imagesCount = images.length; // get the list of images from folder
-        Bitmap getImage = BitmapFactory.decodeFile(images[imagesCount - 1].getAbsolutePath());
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        getImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-        byte[] bt = bos.toByteArray();
-        return Base64.getEncoder().encodeToString(bt);
+        return new File(images[imagesCount - 1].getAbsolutePath());
     }
+    */
 }

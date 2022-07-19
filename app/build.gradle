@@ -64,6 +64,12 @@ dependencies {
         exclude group:'org.apache.oltu.oauth2' , module: 'org.apache.oltu.oauth2.common'
     }
 
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.10'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:5.0.0-alpha.10'
+
     //noinspection GradleDependency
     implementation 'commons-io:commons-io:2.11.0'
 
