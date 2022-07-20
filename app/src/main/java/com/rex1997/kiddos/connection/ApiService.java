@@ -1,68 +1,61 @@
 package com.rex1997.kiddos.connection;
 
-import android.os.Build;
-import android.os.Environment;
-import android.widget.Toast;
+import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
 
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.Response;
 
 public class ApiService extends AppCompatActivity {
+
     /*
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void startApiService(){
-        RequestBody requestFile = RequestBody.create(getLatestImage(), MediaType.parse("multipart/form-data"));
-        Call<DefaultResponse> call = RetrofitClient
-                .getInstance()
-                .apiInterface()
-                .uploadImage(requestFile);
-
-        call.enqueue(new Callback<DefaultResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<DefaultResponse> call, @NonNull Response<DefaultResponse> response) {
-                DefaultResponse dr =  response.body();
-                if (response.code() == 200) {
-                    assert dr != null;
-                    Toast.makeText(ApiService.this, dr.getMsg(), Toast.LENGTH_LONG).show();
-                } else if (response.code() == 401) {
-                    Toast.makeText(ApiService.this, "UNAUTHORIZE", Toast.LENGTH_LONG).show();
-                } else if (response.code() == 429){
-                    Toast.makeText(ApiService.this, "Subscription limit has reached", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(ApiService.this, "Something wrong", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<DefaultResponse> call, @NonNull Throwable t) {
-                Toast.makeText(ApiService.this, t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    public File getLatestImage(){
-        File imagePath = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + getPackageName()
-                + "/Files");
-        FileFilter imageFilter = new WildcardFileFilter("*.jpg");
-        File[] images = imagePath.listFiles(imageFilter);
-
-        assert images != null;
-        int imagesCount = images.length; // get the list of images from folder
-        return new File(images[imagesCount - 1].getAbsolutePath());
-    }
+    * Using Full okhttp3 library
+    *
+    * Use this strict mode code if you use this full okhttp3 request for quick use.
+    *
+    * StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+    * StrictMode.setThreadPolicy(policy);
     */
+
+    private static final String clientID = "6aywCResze0K9kh8u70Ky8WG";
+    private static final String clientSecret = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
+    private static final String BASE_URL = "https://api.everypixel.com/v1/faces";
+    private static final String BASIC_AUTH = "Basic " +
+            android.util.Base64.encodeToString((clientID + ":" + clientSecret).getBytes(),
+                    android.util.Base64.NO_WRAP);
+    private static final MediaType MEDIA_TYPE = MediaType.parse("text/plain");
+
+    public void apiPostService(File getImage){
+
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("data", getImage.getName(),
+                        RequestBody.create(new File(getImage.getAbsolutePath()), MEDIA_TYPE))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(BASE_URL)
+                .addHeader("Authorization", BASIC_AUTH)
+                .post(requestBody)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if(response.isSuccessful()){
+                String responseBody = response.body().string();
+                Log.i("Response", responseBody);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -29,14 +29,14 @@ public class RetrofitClient {
                             Request auth = chain.request();
 
                             Request.Builder requestBuilder = auth.newBuilder()
-                                    .addHeader("Accept", "application/json")
                                     .addHeader("Authorization", BASIC_AUTH)
                                     .method(auth.method(), auth.body());
 
                             Request request = requestBuilder.build();
                             return chain.proceed(request);
                         }
-                ).build();
+                )
+                .build();
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
