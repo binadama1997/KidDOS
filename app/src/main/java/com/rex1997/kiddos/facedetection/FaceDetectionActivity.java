@@ -40,8 +40,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
-import com.rex1997.kiddos.MainActivity;
+import com.rex1997.kiddos.ApiService;
+import com.rex1997.kiddos.ModeActivity;
 import com.rex1997.kiddos.R;
+import com.rex1997.kiddos.utils.BaseActivity;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -86,7 +88,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_facedetection);
         previewView = findViewById(R.id.previewView);
         previewView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
@@ -232,7 +233,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
             name = recognizeImage(bitmap);
             previewImg.setImageBitmap(bitmap);
             changeActivity();
-            finish();
         }
         else {
             detectionTextView.setText(R.string.no_face_detected);
@@ -467,7 +467,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         }
         try {
             FileOutputStream fos = new FileOutputStream(pictureFile);
-            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.close();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File not found: " + e.getMessage());
@@ -502,9 +502,9 @@ public class FaceDetectionActivity extends AppCompatActivity {
     private void changeActivity(){
         int delay = 1000; // Need some time to save an image
         new Handler().postDelayed(() -> {
-            Intent result=new Intent(this, MainActivity.class);
-            startActivity(result);
-            finish();
+            Intent result = new Intent(this, ApiService.class);
+            startActivity((result).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         }, delay);
+        finish();
     }
 }

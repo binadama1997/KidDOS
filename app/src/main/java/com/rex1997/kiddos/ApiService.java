@@ -1,5 +1,6 @@
 package com.rex1997.kiddos;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,25 +28,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
-
+public class ApiService extends AppCompatActivity {
     private static final String TAG = "API Service";
-    private ProgressBar loadingBar;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        loadingBar = findViewById(R.id.loadingBar);
-
+        ProgressBar loadingBar = findViewById(R.id.loadingBar);
+        loadingBar.setVisibility(View.VISIBLE);
         apiService(getLatestImage());
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void apiService(File getImage){
-        loadingBar.setVisibility(View.VISIBLE);
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(
@@ -60,33 +57,34 @@ public class MainActivity extends AppCompatActivity {
                 .uploadImage(requestBody)
                 ;
 
-        call.enqueue(new Callback<Post>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<Post> call, @NonNull Response<Post> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
-                    String result = response.body().getFaces().toString();
-                    Toast.makeText(MainActivity.this, "SUCCESS.", Toast.LENGTH_LONG).show();
-                    Log.i(TAG, "Get data from API." + result);
+                    String data = response.body().getFaces().toString();
+                    data = data.replaceAll("\\[", "").replaceAll("\\]", "");
+                    double result = Double.parseDouble(data);
+                    Log.i(TAG, "Get age from API: " + result);
+                    startActivity(new Intent(ApiService.this, ModeActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            .putExtra("Age", result));
                 } else {
-                    Toast.makeText(MainActivity.this, "Something wrong", Toast.LENGTH_LONG).show();
                     Log.e(TAG, "onEmptyResponse => Returned empty response");
                     finish();
                 }
-                loadingBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(@NonNull Call<Post> call, @NonNull Throwable t) {
-                if(call.isCanceled()) {
-                    Toast.makeText(MainActivity.this, "Request was aborted", Toast.LENGTH_LONG).show();
+                if (call.isCanceled()) {
+                    Toast.makeText(ApiService.this, "Request was aborted", Toast.LENGTH_LONG).show();
                     Log.e(TAG, "Request was aborted");
                 } else {
-                    Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ApiService.this, t.getMessage(), Toast.LENGTH_LONG).show();
                     Log.e(TAG, t.getMessage());
                 }
                 finish();
-                loadingBar.setVisibility(View.GONE);
             }
         });
     }

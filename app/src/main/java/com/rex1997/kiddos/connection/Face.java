@@ -37,9 +37,7 @@ public class Face {
         this.score = score;
     }
 
-    public Double getAge() {
-        return age;
-    }
+    public Double getAge() { return age; }
 
     public void setAge(Double age) {
         this.age = age;
@@ -53,33 +51,18 @@ public class Face {
         this._class = _class;
     }
 
+    public Face(List<Object> bbox, Double score, Double age, String _class) {
+        this.bbox = bbox;
+        this.score = score;
+        this.age = age;
+        this._class = _class;
+    }
+
+
     @NonNull
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Face.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
-        sb.append("bbox");
-        sb.append('=');
-        sb.append(((this.bbox == null)?"<null>":this.bbox));
-        sb.append(',');
-        sb.append("score");
-        sb.append('=');
-        sb.append(((this.score == null)?"<null>":this.score));
-        sb.append(',');
-        sb.append("age");
-        sb.append('=');
-        sb.append(((this.age == null)?"<null>":this.age));
-        sb.append(',');
-        sb.append("_class");
-        sb.append('=');
-        sb.append(((this._class == null)?"<null>":this._class));
-        sb.append(',');
-        if (sb.charAt((sb.length()- 1)) == ',') {
-            sb.setCharAt((sb.length()- 1), ']');
-        } else {
-            sb.append(']');
-        }
-        return sb.toString();
+        return String.valueOf(this.age);
     }
 
 }

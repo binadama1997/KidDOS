@@ -31,25 +31,16 @@ public class Post {
         this.status = status;
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Post.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
-        sb.append("faces");
-        sb.append('=');
-        sb.append(((this.faces == null)?"<null>":this.faces));
-        sb.append(',');
-        sb.append("status");
-        sb.append('=');
-        sb.append(((this.status == null)?"<null>":this.status));
-        sb.append(',');
-        if (sb.charAt((sb.length()- 1)) == ',') {
-            sb.setCharAt((sb.length()- 1), ']');
-        } else {
-            sb.append(']');
-        }
-        return sb.toString();
+    public Post(List<Face> faces, String status) {
+        this.faces = faces;
+        this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return "Post{" +
+                "faces=" + faces +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

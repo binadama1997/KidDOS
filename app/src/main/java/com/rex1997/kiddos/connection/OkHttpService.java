@@ -14,19 +14,20 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ApiService extends AppCompatActivity {
+public class OkHttpService extends AppCompatActivity {
 
     /*
-    * Using Full okhttp3 library
+    * If you want to use full okhttp3 library
     *
-    * Use this strict mode code if you use this full okhttp3 request for quick use.
+    * Use this strict mode code if you use this full okhttp3 request for quick use
+    * on your "MainActivity".
     *
     * StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
     * StrictMode.setThreadPolicy(policy);
     */
 
-    private static final String clientID = "6aywCResze0K9kh8u70Ky8WG";
-    private static final String clientSecret = "crD8hhONleq3AGHB7fPuIKdv9Iln8M3iQeOwx0Qz8gvlHcyv";
+    private static final String clientID = "your username or ID";
+    private static final String clientSecret = "your password or secret";
     private static final String BASE_URL = "https://api.everypixel.com/v1/faces";
     private static final String BASIC_AUTH = "Basic " +
             android.util.Base64.encodeToString((clientID + ":" + clientSecret).getBytes(),
@@ -35,7 +36,7 @@ public class ApiService extends AppCompatActivity {
 
     public void apiPostService(File getImage){
 
-        OkHttpClient client = new OkHttpClient();
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
