@@ -41,9 +41,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.rex1997.kiddos.ApiService;
-import com.rex1997.kiddos.ModeActivity;
 import com.rex1997.kiddos.R;
-import com.rex1997.kiddos.utils.BaseActivity;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -503,7 +501,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         int delay = 1000; // Need some time to save an image
         new Handler().postDelayed(() -> {
             Intent result = new Intent(this, ApiService.class);
-            startActivity((result).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            startActivity(result);
         }, delay);
         finish();
     }

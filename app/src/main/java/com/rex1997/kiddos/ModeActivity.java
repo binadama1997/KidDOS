@@ -24,6 +24,7 @@ import com.rex1997.kiddos.facedetection.FaceDetectionActivity;
 import com.rex1997.kiddos.utils.AppAdapter;
 import com.rex1997.kiddos.utils.AppList;
 import com.rex1997.kiddos.utils.BaseActivity;
+import com.rex1997.kiddos.utils.KioskMode;
 import com.rex1997.kiddos.utils.MySharedPreferences;
 import com.rex1997.kiddos.utils.SettingFragment;
 
@@ -40,28 +41,23 @@ public class ModeActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        Bundle faceDetection = getIntent().getExtras();
-        boolean isReady = faceDetection.getBoolean("Age", true);
-        if (!isReady){
-            startActivity(new Intent(this, FaceDetectionActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-        }
         setContentView(R.layout.activity_mode);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TextView statusTitle = findViewById(R.id.status_title);
-        statusTitle.setText(R.string.allowed_app);
-        setUpKioskMode();
-        userInstalledApps = findViewById(R.id.app_list);
-        getAppsList();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
+        Intent intentReceived = getIntent();
+        Bundle data = intentReceived.getExtras();
+        Double age = null;
+        if(data != null){
+            age = data.getDouble("Age");
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            TextView statusTitle = findViewById(R.id.status_title);
+            statusTitle.setText(R.string.allowed_app);
+            setUpKioskMode();
+            userInstalledApps = findViewById(R.id.app_list);
+            getAppsList(age);
+        }else{
+            startActivity(new Intent(this, FaceDetectionActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        }
     }
 
     @Override
@@ -91,7 +87,6 @@ public class ModeActivity extends BaseActivity {
         if (!kioskMode.isLocked(this)) {
             super.onBackPressed();
         }
-        super.finish();
     }
 
     private void setUpKioskMode() {
@@ -121,14 +116,17 @@ public class ModeActivity extends BaseActivity {
             int msg = isLocked ? R.string.setting_device_locked : R.string.setting_device_unlocked;
             kioskMode.lockUnlock(this, isLocked);
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            if(msg == R.string.setting_device_unlocked){
+                finish();
+            }
         });
     }
 
     /**
      * Show installed apps
      */
-    private void getAppsList(){
-        installedApps = getInstalledApps();
+    private void getAppsList(Double age){
+        installedApps = getInstalledApps(age);
         AppAdapter installedAppAdapter = new AppAdapter(this, installedApps);
         userInstalledApps.setAdapter(installedAppAdapter);
         userInstalledApps.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -139,7 +137,7 @@ public class ModeActivity extends BaseActivity {
         });
     }
 
-    private List<AppList> getInstalledApps() {
+    private List<AppList> getInstalledApps(Double age) {
         // Initiate main/app list
         List<AppList> apps = new ArrayList<>();
         // Get what apps installed in te phone
@@ -149,19 +147,17 @@ public class ModeActivity extends BaseActivity {
         // Get data from xml resources
         Resources res = getResources();
         List<String> allowApps = new ArrayList<>();
-        Bundle extras = getIntent().getExtras();
-        double result = extras.getDouble("Age");
-        if (result > 3 && result < 7) {
+        if (age > 3 && age < 7) {
             allowApps = List.of(res.getStringArray(R.array.threeplus));
-        } else if (result >= 7 && result < 12){
+        } else if (age >= 7 && age < 12){
             allowApps = List.of(res.getStringArray(R.array.sevenplus));
-        } else if (result >= 12 && result < 16){
+        } else if (age >= 12 && age < 16){
             allowApps = List.of(res.getStringArray(R.array.twelveplus));
-        } else if (result >= 16 && result < 30){
+        } else if (age >= 16 && age < 18){
             allowApps = List.of(res.getStringArray(R.array.sixtenplus));
         } else {
             Toast.makeText(ModeActivity.this, "You're in normal mode", Toast.LENGTH_LONG).show();
-            super.finish();
+            finish();
         }
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);

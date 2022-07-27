@@ -27,7 +27,6 @@
         <activity
             android:name=".facedetection.FaceDetectionActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:exported="true"
             android:launchMode="singleTask">
         </activity>
         <activity

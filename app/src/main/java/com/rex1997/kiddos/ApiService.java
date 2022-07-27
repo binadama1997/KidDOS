@@ -66,9 +66,11 @@ public class ApiService extends AppCompatActivity {
                     data = data.replaceAll("\\[", "").replaceAll("\\]", "");
                     double result = Double.parseDouble(data);
                     Log.i(TAG, "Get age from API: " + result);
-                    startActivity(new Intent(ApiService.this, ModeActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            .putExtra("Age", result));
+                    Intent intent = new Intent (ApiService.this,  ModeActivity.class);
+                    Bundle dataAge = new Bundle();
+                    dataAge.putDouble("Age", result);
+                    intent.putExtras(dataAge);
+                    startActivity(intent);
                 } else {
                     Log.e(TAG, "onEmptyResponse => Returned empty response");
                     finish();
