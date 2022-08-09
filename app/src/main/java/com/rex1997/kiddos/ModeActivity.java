@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
@@ -44,7 +45,7 @@ public class ModeActivity extends BaseActivity {
         setContentView(R.layout.activity_mode);
         Intent intentReceived = getIntent();
         Bundle data = intentReceived.getExtras();
-        Double age = null;
+        Double age;
         if(data != null){
             age = data.getDouble("Age");
             Toolbar toolbar = findViewById(R.id.toolbar);
@@ -87,6 +88,11 @@ public class ModeActivity extends BaseActivity {
         if (!kioskMode.isLocked(this)) {
             super.onBackPressed();
         }
+        /*
+        moveTaskToBack(true);
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
+        */
     }
 
     private void setUpKioskMode() {
@@ -116,9 +122,6 @@ public class ModeActivity extends BaseActivity {
             int msg = isLocked ? R.string.setting_device_locked : R.string.setting_device_unlocked;
             kioskMode.lockUnlock(this, isLocked);
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            if(msg == R.string.setting_device_unlocked){
-                finish();
-            }
         });
     }
 
@@ -148,16 +151,29 @@ public class ModeActivity extends BaseActivity {
         Resources res = getResources();
         List<String> allowApps = new ArrayList<>();
         if (age > 3 && age < 7) {
+            Toast.makeText(ModeActivity.this, "You're in 3+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.threeplus));
         } else if (age >= 7 && age < 12){
+            Toast.makeText(ModeActivity.this, "You're in 7+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.sevenplus));
         } else if (age >= 12 && age < 16){
+            Toast.makeText(ModeActivity.this, "You're in 12+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.twelveplus));
         } else if (age >= 16 && age < 18){
+            Toast.makeText(ModeActivity.this, "You're in 16+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.sixtenplus));
         } else {
             Toast.makeText(ModeActivity.this, "You're in normal mode", Toast.LENGTH_LONG).show();
-            finish();
+            for (int i = 0; i < packs.size(); i++) {
+                PackageInfo p = packs.get(i);
+                if ((!isSystemPackage(p))) {
+                    // Filtering only allowed app in the main list
+                    String appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
+                    Drawable icon = p.applicationInfo.loadIcon(getPackageManager());
+                    String packages = p.applicationInfo.packageName;
+                    apps.add(new AppList(appName, icon, packages));
+                }
+            }
         }
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);
@@ -174,5 +190,17 @@ public class ModeActivity extends BaseActivity {
 
     private boolean isSystemPackage(PackageInfo pkgInfo) {
         return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        /*
+        if (resultCode == RESULT_CLOSE_ALL) {
+            setResult(RESULT_CLOSE_ALL);
+            finish();
+        }
+
+         */
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
