@@ -4,15 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/splash_screen"
-    tools:context=".ui.SplashScreenActivity">
+    android:id="@+id/splash_screen">
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:backgroundTint="#FFFFFF"
-        android:src="@drawable/hello_world_logo"
+        android:layout_width="320dp"
+        android:layout_height="200dp"
+        android:src="@drawable/logo_kiddos"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

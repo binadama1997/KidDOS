@@ -1,12 +1,13 @@
 package com.rex1997.kiddos;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -17,15 +18,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.rex1997.kiddos.facedetection.FaceDetectionActivity;
 import com.rex1997.kiddos.utils.AppAdapter;
 import com.rex1997.kiddos.utils.AppList;
 import com.rex1997.kiddos.utils.BaseActivity;
-import com.rex1997.kiddos.utils.KioskMode;
 import com.rex1997.kiddos.utils.MySharedPreferences;
 import com.rex1997.kiddos.utils.SettingFragment;
 
@@ -33,32 +34,71 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModeActivity extends BaseActivity {
+
     private static final String TAG = "@string/app_name";
     final private FragmentManager fragmentManager = getSupportFragmentManager();
-
     private List<AppList> installedApps;
     ListView userInstalledApps;
+    private Double age;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mode);
-        Intent intentReceived = getIntent();
-        Bundle data = intentReceived.getExtras();
-        Double age;
+        setUpKioskMode();
+        Intent apiServiceReceived = getIntent();
+        Bundle data = apiServiceReceived.getExtras();
         if(data != null){
             age = data.getDouble("Age");
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             TextView statusTitle = findViewById(R.id.status_title);
+            TextView statusAge = findViewById(R.id.status_age);
+            String roundAge = String.valueOf((int) Math.round(age));
             statusTitle.setText(R.string.allowed_app);
-            setUpKioskMode();
+            statusAge.setText(roundAge);
             userInstalledApps = findViewById(R.id.app_list);
             getAppsList(age);
         }else{
-            startActivity(new Intent(this, FaceDetectionActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            setContentView(R.layout.splash);
+            new Handler().postDelayed(() -> startActivity(new Intent(this, FaceDetectionActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)),3000);
+
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startPermission();
+    }
+
+    /** Permission **/
+    public void startPermission(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.QUERY_ALL_PACKAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.QUERY_ALL_PACKAGES}, 1);
+            }
+        }
+
+        /*
+        * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        }
+        */
     }
 
     @Override
@@ -88,11 +128,6 @@ public class ModeActivity extends BaseActivity {
         if (!kioskMode.isLocked(this)) {
             super.onBackPressed();
         }
-        /*
-        moveTaskToBack(true);
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
-        */
     }
 
     private void setUpKioskMode() {
@@ -129,7 +164,7 @@ public class ModeActivity extends BaseActivity {
      * Show installed apps
      */
     private void getAppsList(Double age){
-        installedApps = getInstalledApps(age);
+        installedApps = getAllowedApps(age);
         AppAdapter installedAppAdapter = new AppAdapter(this, installedApps);
         userInstalledApps.setAdapter(installedAppAdapter);
         userInstalledApps.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -137,15 +172,15 @@ public class ModeActivity extends BaseActivity {
             finish(); // Close app before opening intent
             Intent intent = new Intent(getPackageManager().getLaunchIntentForPackage(installedApps.get(i).packages));
             startActivity(intent);
+            onBackPressed();
         });
     }
 
-    private List<AppList> getInstalledApps(Double age) {
+    private List<AppList> getAllowedApps(Double age) {
         // Initiate main/app list
         List<AppList> apps = new ArrayList<>();
         // Get what apps installed in te phone
         PackageManager pm = getPackageManager();
-        @SuppressLint("QueryPermissionsNeeded")
         List<PackageInfo> packs = pm.getInstalledPackages(0);
         // Get data from xml resources
         Resources res = getResources();
@@ -159,25 +194,17 @@ public class ModeActivity extends BaseActivity {
         } else if (age >= 12 && age < 16){
             Toast.makeText(ModeActivity.this, "You're in 12+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.twelveplus));
-        } else if (age >= 16 && age < 18){
+        } else if (age >= 16 && age < 30){
             Toast.makeText(ModeActivity.this, "You're in 16+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.sixtenplus));
         } else {
-            Toast.makeText(ModeActivity.this, "You're in normal mode", Toast.LENGTH_LONG).show();
-            for (int i = 0; i < packs.size(); i++) {
-                PackageInfo p = packs.get(i);
-                if ((!isSystemPackage(p))) {
-                    // Filtering only allowed app in the main list
-                    String appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
-                    Drawable icon = p.applicationInfo.loadIcon(getPackageManager());
-                    String packages = p.applicationInfo.packageName;
-                    apps.add(new AppList(appName, icon, packages));
-                }
-            }
+            Toast.makeText(ModeActivity.this, "Your age is out of the range between 3-17", Toast.LENGTH_LONG).show();
+            kioskMode.lockUnlock(this, true);
+            onBackPressed();
         }
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);
-            if ((!isSystemPackage(p)) && allowApps.contains(p.applicationInfo.packageName)) {
+            if ((isSystemPackage(p)) && allowApps.contains(p.applicationInfo.packageName)) {
                 // Filtering only allowed app in the main list
                 String appName = p.applicationInfo.loadLabel(getPackageManager()).toString();
                 Drawable icon = p.applicationInfo.loadIcon(getPackageManager());
@@ -189,18 +216,6 @@ public class ModeActivity extends BaseActivity {
     }
 
     private boolean isSystemPackage(PackageInfo pkgInfo) {
-        return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        /*
-        if (resultCode == RESULT_CLOSE_ALL) {
-            setResult(RESULT_CLOSE_ALL);
-            finish();
-        }
-
-         */
-        super.onActivityResult(requestCode, resultCode, data);
+        return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0;
     }
 }

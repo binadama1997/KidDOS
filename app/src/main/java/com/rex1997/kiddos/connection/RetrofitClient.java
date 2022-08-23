@@ -1,9 +1,5 @@
 package com.rex1997.kiddos.connection;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
 import com.rex1997.kiddos.BuildConfig;
 
 import okhttp3.OkHttpClient;
@@ -11,14 +7,13 @@ import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class RetrofitClient {
 
     private static final String ID = BuildConfig.clientID;
     private static final String SECRET = BuildConfig.clientSecret;
     private static final String BASE_URL = "https://api.everypixel.com/";
-    private static final String BASIC_AUTH = "Basic " +
-            android.util.Base64.encodeToString((ID + ":" + SECRET).getBytes(),
+    private static final String BASIC_AUTH =
+            "Basic " + android.util.Base64.encodeToString((ID + ":" + SECRET).getBytes(),
                     android.util.Base64.NO_WRAP);
 
     private static RetrofitClient mInstance;

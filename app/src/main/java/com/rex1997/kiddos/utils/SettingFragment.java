@@ -32,7 +32,7 @@ public class SettingFragment extends DialogFragment {
         final int status = !isLocked ? R.string.setting_unlock_device : R.string.setting_lock_device;
         TextView statusText = rootView.findViewById(R.id.status);
         final TextView enterPassword = rootView.findViewById(R.id.enter_password);
-        String thisStatusText = String.format("%s%s", getString(R.string.status_title), getString(status));
+        String thisStatusText = String.format("%s %s", getString(R.string.status_title), getString(status));
         statusText.setText(thisStatusText);
 
         // This is for button in kiosk setting, do you want to lock or unlock

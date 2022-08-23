@@ -1,20 +1,16 @@
-package com.rex1997.kiddos;
+package com.rex1997.kiddos.connection;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.rex1997.kiddos.connection.Post;
-import com.rex1997.kiddos.connection.RetrofitClient;
+import com.rex1997.kiddos.ModeActivity;
+import com.rex1997.kiddos.R;
+import com.rex1997.kiddos.utils.BaseActivity;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -28,21 +24,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ApiService extends AppCompatActivity {
+public class ApiService extends BaseActivity {
     private static final String TAG = "API Service";
 
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ProgressBar loadingBar = findViewById(R.id.loadingBar);
-        loadingBar.setVisibility(View.VISIBLE);
+        setContentView(R.layout.activity_apiservice);
         apiService(getLatestImage());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void apiService(File getImage){
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -64,7 +55,7 @@ public class ApiService extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     String data = response.body().getFaces().toString();
-                    data = data.replaceAll("\\[", "").replaceAll("\\]", "");
+                    data = data.replaceAll("\\[", "").replaceAll("]", "");
                     double result = Double.parseDouble(data);
                     Log.i(TAG, "Get age from API: " + result);
                     Intent intent = new Intent (ApiService.this,  ModeActivity.class);
@@ -73,6 +64,7 @@ public class ApiService extends AppCompatActivity {
                     intent.putExtras(dataAge);
                     startActivity(intent);
                 } else {
+                    Toast.makeText(ApiService.this, "ERROR! : Returned empty response", Toast.LENGTH_LONG).show();
                     Log.e(TAG, "onEmptyResponse => Returned empty response");
                     finish();
                 }
@@ -81,13 +73,13 @@ public class ApiService extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<Post> call, @NonNull Throwable t) {
                 if (call.isCanceled()) {
-                    Toast.makeText(ApiService.this, "Request was aborted", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ApiService.this, "ERROR! : Request was aborted", Toast.LENGTH_LONG).show();
                     Log.e(TAG, "Request was aborted");
                 } else {
-                    Toast.makeText(ApiService.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ApiService.this, "ERROR! : " + t.getMessage(), Toast.LENGTH_LONG).show();
                     Log.e(TAG, t.getMessage());
                 }
-                finish();
+                onBackPressed();
             }
         });
     }

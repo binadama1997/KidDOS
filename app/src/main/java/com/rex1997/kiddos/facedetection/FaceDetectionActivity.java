@@ -1,10 +1,8 @@
 package com.rex1997.kiddos.facedetection;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,9 +21,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -33,15 +31,15 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
-import com.rex1997.kiddos.ApiService;
 import com.rex1997.kiddos.R;
+import com.rex1997.kiddos.connection.ApiService;
+import com.rex1997.kiddos.utils.BaseActivity;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -60,12 +58,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class FaceDetectionActivity extends AppCompatActivity {
+public class FaceDetectionActivity extends BaseActivity {
     private static final String TAG = "Face Detection Activity";
     private PreviewView previewView;
     private CameraSelector cameraSelector;
@@ -99,19 +98,6 @@ public class FaceDetectionActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        // Permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
-        }
-
         startCamera();
     }
 
@@ -128,6 +114,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
                 cameraProvider = cameraProviderFuture.get();
                 bindAllCameraUseCases();
             } catch (ExecutionException | InterruptedException e) {
+                Toast.makeText(FaceDetectionActivity.this, "ERROR! : Error cameraProviderFuture.addListener", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "cameraProviderFuture.addListener Error", e);
             }
         }, ContextCompat.getMainExecutor(this));
@@ -159,6 +146,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             cameraProvider
                     .bindToLifecycle(this, cameraSelector, previewUseCase);
         } catch (Exception e) {
+            Toast.makeText(FaceDetectionActivity.this, "ERROR! : Error when bind preview", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Error when bind preview", e);
         }
     }
@@ -182,6 +170,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             cameraProvider
                     .bindToLifecycle(this, cameraSelector, analysisUseCase);
         } catch (Exception e) {
+            Toast.makeText(FaceDetectionActivity.this, "ERROR! : Error when bind analysis", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Error when bind analysis", e);
         }
     }
@@ -298,6 +287,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         float scaleHeight = ((float) 112) / height;
         // CREATE A MATRIX FOR THE MANIPULATION
         Matrix matrix = new Matrix();
+
         // RESIZE THE BIT MAP
         matrix.postScale(scaleWidth, scaleHeight);
 
@@ -316,7 +306,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
         // draw background
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
         paint.setColor(Color.WHITE);
-        canvas.drawRect(//from  w w  w. ja v  a  2s. c  om
+        canvas.drawRect(
                 new RectF(0, 0, cropRectF.width(), cropRectF.height()),
                 paint);
 
@@ -442,6 +432,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             String modelFile = "mobile_face_net.tflite";
             tfLite = new Interpreter(loadModelFile(FaceDetectionActivity.this, modelFile));
         } catch (IOException e) {
+            Toast.makeText(FaceDetectionActivity.this, "ERROR! : Error load model Mobilefacenets", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -454,6 +445,8 @@ public class FaceDetectionActivity extends AppCompatActivity {
         long declaredLength = fileDescriptor.getDeclaredLength();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
+
+
 
     /** Save Image **/
     public void saveImage(Bitmap image) {
@@ -489,7 +482,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
 
         // Create a media file name
         @SuppressLint("SimpleDateFormat")
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm", Locale.getDefault()).format(new Date());
         File mediaFile;
         String mImageName="KD_"+ timeStamp +".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
@@ -500,7 +493,8 @@ public class FaceDetectionActivity extends AppCompatActivity {
     private void changeActivity(){
         int delay = 1000; // Need some time to save an image
         new Handler().postDelayed(() -> {
-            Intent result = new Intent(this, ApiService.class);
+            Intent result = new Intent(this, ApiService.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(result);
         }, delay);
         finish();

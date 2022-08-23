@@ -61,8 +61,6 @@ public class Face {
                 "}";
     }
 
-
-
     @NonNull
     @Override
     public String toString() {
@@ -73,7 +71,6 @@ public class Face {
                 "\',\'_class:\'" + _class +
                 "}";
     }
-
-     */
+    */
 }
 
