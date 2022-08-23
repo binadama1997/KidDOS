@@ -66,7 +66,7 @@ public class ApiService extends BaseActivity {
                 } else {
                     Toast.makeText(ApiService.this, "ERROR! : Returned empty response", Toast.LENGTH_LONG).show();
                     Log.e(TAG, "onEmptyResponse => Returned empty response");
-                    finish();
+                    moveTaskToBack(true);
                 }
             }
 

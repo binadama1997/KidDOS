@@ -20,5 +20,6 @@
     <string name="app_name_value">App Name</string>
     <string name="icon">Icon</string>
     <string name="status_title">Kiosk Mode : </string>
-    <string name="allowed_app">List of Allowed Apps For-</string>
+    <string name="allowed_app">List of Allowed Apps For</string>
+    <string name="years_old">Years Old</string>
 </resources>

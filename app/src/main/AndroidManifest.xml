@@ -28,12 +28,15 @@
 
         <activity
             android:name=".facedetection.FaceDetectionActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".connection.ApiService"
+            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".ModeActivity"
+            android:noHistory="false"
             android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>

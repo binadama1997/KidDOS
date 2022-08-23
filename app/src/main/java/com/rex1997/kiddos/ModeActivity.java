@@ -40,6 +40,7 @@ public class ModeActivity extends BaseActivity {
     private List<AppList> installedApps;
     ListView userInstalledApps;
     private Double age;
+    private Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,22 +48,23 @@ public class ModeActivity extends BaseActivity {
         setContentView(R.layout.activity_mode);
         setUpKioskMode();
         Intent apiServiceReceived = getIntent();
-        Bundle data = apiServiceReceived.getExtras();
-        if(data != null){
-            age = data.getDouble("Age");
+        bundle = apiServiceReceived.getExtras();
+        if (bundle != null) {
+            age = bundle.getDouble("Age");
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             TextView statusTitle = findViewById(R.id.status_title);
             TextView statusAge = findViewById(R.id.status_age);
             String roundAge = String.valueOf((int) Math.round(age));
             statusTitle.setText(R.string.allowed_app);
-            statusAge.setText(roundAge);
+            String setStatusAge = String.format("%s %s", roundAge, R.string.years_old);
+            statusAge.setText(setStatusAge);
             userInstalledApps = findViewById(R.id.app_list);
             getAppsList(age);
-        }else{
+        } else {
             setContentView(R.layout.splash);
             new Handler().postDelayed(() -> startActivity(new Intent(this, FaceDetectionActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)),3000);
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)), 3000);
 
         }
     }
@@ -126,7 +128,7 @@ public class ModeActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (!kioskMode.isLocked(this)) {
-            super.onBackPressed();
+            moveTaskToBack(true);
         }
     }
 
@@ -157,6 +159,11 @@ public class ModeActivity extends BaseActivity {
             int msg = isLocked ? R.string.setting_device_locked : R.string.setting_device_unlocked;
             kioskMode.lockUnlock(this, isLocked);
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            /*
+            if(msg == R.string.setting_device_unlocked){
+                moveTaskToBack(true);
+            }
+            */
         });
     }
 
@@ -172,7 +179,6 @@ public class ModeActivity extends BaseActivity {
             finish(); // Close app before opening intent
             Intent intent = new Intent(getPackageManager().getLaunchIntentForPackage(installedApps.get(i).packages));
             startActivity(intent);
-            onBackPressed();
         });
     }
 
@@ -200,7 +206,8 @@ public class ModeActivity extends BaseActivity {
         } else {
             Toast.makeText(ModeActivity.this, "Your age is out of the range between 3-17", Toast.LENGTH_LONG).show();
             kioskMode.lockUnlock(this, true);
-            onBackPressed();
+            bundle.clear();
+            finish();
         }
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);

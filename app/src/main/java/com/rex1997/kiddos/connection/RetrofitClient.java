@@ -15,7 +15,6 @@ public class RetrofitClient {
     private static final String BASIC_AUTH =
             "Basic " + android.util.Base64.encodeToString((ID + ":" + SECRET).getBytes(),
                     android.util.Base64.NO_WRAP);
-
     private static RetrofitClient mInstance;
     private final Retrofit retrofit;
 
@@ -49,7 +48,7 @@ public class RetrofitClient {
         return mInstance;
     }
 
-   public ApiInterface apiInterface(){
+    public ApiInterface apiInterface(){
         return retrofit.create(ApiInterface.class);
     }
 }

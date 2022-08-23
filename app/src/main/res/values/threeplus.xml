@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="threeplus">
+        <!--APPS-->
+        <!--3+-->
         <item>com.whatsapp</item>
         <item>com.duolingo</item>
         <item>com.google.android.apps.youtube.kids</item>
         <item>com.telkomsel.telkomselcm</item>
-        <item>com.ludo.king</item>
         <item>org.videolan.vlc</item>
         <item>mega.privacy.android.app</item>
         <item>com.telkom.mwallet</item>
@@ -13,5 +14,61 @@
         <item>com.tokopedia.tkpd</item>
         <item>com.grabtaxi.passenger</item>
         <item>com.gojek.app"</item>
+        <item>com.lemon.lvoverseas</item>
+        <item>id.dana</item>
+        <item>com.whatsapp.w4b</item>
+        <item>com.michatapp.im</item>
+        <item>id.co.bri.brimo</item>
+        <item>id.co.bri.brilinkmobile</item>
+        <item>com.telkom.tracencare</item>
+        <item>com.pure.indosat.care</item>
+        <item>com.adakami.dana.kredit.pinjaman</item>
+        <item>io.silvrr.installment</item>
+        <item>com.bigwinepot.nwdn.international</item>
+        <item>com.apps.MyXL</item>
+        <item>com.taxsee.taxsee</item>
+        <item>com.icon.pln123</item>
+        <item>com.glints.candidate</item>
+        <item>org.wikipedia</item>
+        <item>com.area120.grasshopper</item>
+        <item>co.brainly</item>
+        <item>com.microblink.photomath</item>
+        <item>org.coursera.android</item>
+        <item>com.ruangguru.livestudents</item>
+        <item>com.app.tokobagus.betterb</item>
+        <item>com.jobstreet.jobstreet</item>
+        <item>com.linkit.bimatri</item>
+        <item>com.opera.browser.beta</item>
+        <item>com.opera.mini.native.beta</item>
+        <item>com.opera.browser</item>
+        <item>com.opera.mini.native</item>
+        <item>com.duckduckgo.mobile.android</item>
+        <item>org.mozilla.firefox</item>
+        <item>com.microsoft.emmx</item>
+        <item>org.torproject.android</item>
+        <item>com.paypal.android.p2pmobile</item>
+        <item>ovo.id</item>
+        <item>com.binance.dev</item>
+        <item>com.traveloka.android</item>
+        <item>com.tiket.gits</item>
+
+        <!--GAMES-->
+        <!--3+-->
+        <item>com.ludo.king</item>
+        <item>com.ea.gp.fifamobile</item>
+        <item>com.gameloft.android.ANMP.GloftPOHM</item>
+        <item>com.playrix.homescapes</item>
+        <item>com.rovio.baba</item>
+        <item>com.n3twork.tetris</item>
+        <item>easy.sudoku.puzzle.solver.free</item>
+        <item>app.fourequalsten.fourequalsten_app</item>
+        <item>com.Playrion.AirlinesManager2</item>
+        <item>com.idle.railway.empire.tycoon</item>
+        <item>com.computerlunch.evolution</item>
+        <item>dk.xombat.airlinemanager4</item>
+        <item>com.unciv.app</item>
+        <item>com.king.candycrushsaga</item>
+        <item>com.king.candycrushsodasaga</item>
+        <item>com.phonemaster.jewelhunter</item>
     </string-array>
 </resources>

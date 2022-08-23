@@ -1,18 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="twelveplus">
-        <item>"com.whatsapp",</item>
+        <!--APPS-->
+        <!--3+-->
+        <item>com.whatsapp</item>
         <item>com.duolingo</item>
         <item>com.google.android.apps.youtube.kids</item>
         <item>com.telkomsel.telkomselcm</item>
-        <item>com.ludo.king</item>
         <item>org.videolan.vlc</item>
         <item>mega.privacy.android.app</item>
         <item>com.telkom.mwallet</item>
         <item>com.shopee.id</item>
         <item>com.tokopedia.tkpd</item>
         <item>com.grabtaxi.passenger</item>
-        <item>com.gojek.app</item>
+        <item>com.gojek.app"</item>
+        <item>com.lemon.lvoverseas</item>
+        <item>id.dana</item>
+        <item>com.whatsapp.w4b</item>
+        <item>com.michatapp.im</item>
+        <item>id.co.bri.brimo</item>
+        <item>id.co.bri.brilinkmobile</item>
+        <item>com.telkom.tracencare</item>
+        <item>com.pure.indosat.care</item>
+        <item>com.adakami.dana.kredit.pinjaman</item>
+        <item>io.silvrr.installment</item>
+        <item>com.bigwinepot.nwdn.international</item>
+        <item>com.apps.MyXL</item>
+        <item>com.taxsee.taxsee</item>
+        <item>com.icon.pln123</item>
+        <item>com.glints.candidate</item>
+        <item>org.wikipedia</item>
+        <item>com.area120.grasshopper</item>
+        <item>co.brainly</item>
+        <item>com.microblink.photomath</item>
+        <item>org.coursera.android</item>
+        <item>com.ruangguru.livestudents</item>
+        <item>com.app.tokobagus.betterb</item>
+        <item>com.jobstreet.jobstreet</item>
+        <item>com.linkit.bimatri</item>
+        <item>com.opera.browser.beta</item>
+        <item>com.opera.mini.native.beta</item>
+        <item>com.opera.browser</item>
+        <item>com.opera.mini.native</item>
+        <item>com.duckduckgo.mobile.android</item>
+        <item>org.mozilla.firefox</item>
+        <item>com.microsoft.emmx</item>
+        <item>org.torproject.android</item>
+        <item>com.paypal.android.p2pmobile</item>
+        <item>ovo.id</item>
+        <item>com.binance.dev</item>
+        <item>com.traveloka.android</item>
+        <item>com.tiket.gits</item>
+
+        <!--7+-->
+
+        <!--12+-->
         <item>com.spotify.music</item>
         <item>com.ss.android.ugc.trill</item>
         <item>com.google.android.youtube</item>
@@ -23,5 +65,55 @@
         <item>com.discord</item>
         <item>com.reddit.frontpage</item>
         <item>com.linkedin.android</item>
+        <item>com.kwai.bulldog</item>
+        <item>e.books.reading.apps</item>
+        <item>com.vidio.android</item>
+        <item>com.moonvideo.android.resso</item>
+        <item>com.bstar.intl</item>
+        <item>com.facebook.orca</item>
+        <item>com.amazon.avod.thirdpartyclient</item>
+        <item>com.iqiyi.i18n.tv</item>
+        <item>com.snapchat.android</item>
+        <item>sg.bigo.live</item>
+        <item>mobi.mangatoon.comics.aphone</item>
+        <item>wp.wattpad</item>
+        <item>jp.pxv.android</item>
+        <item>com.skype.raider</item>
+
+
+        <!--GAMES-->
+        <!--3+-->
+        <item>com.ludo.king</item>
+        <item>com.ea.gp.fifamobile</item>
+        <item>com.gameloft.android.ANMP.GloftPOHM</item>
+        <item>com.playrix.homescapes</item>
+        <item>com.rovio.baba</item>
+        <item>com.n3twork.tetris</item>
+        <item>easy.sudoku.puzzle.solver.free</item>
+        <item>app.fourequalsten.fourequalsten_app</item>
+
+        <!--7+-->
+        <item>com.mojang.minecraftpe</item>
+        <item>com.ea.game.simcitymobile_row</item>
+        <item>com.supercell.clashofclans</item>
+        <item>com.mobile.legends</item>
+        <item>com.supercell.clashofclans</item>
+        <item>com.supercell.clashroyale</item>
+        <item>com.Shooter.ModernWarships</item>
+        <item>com.gameloft.android.ANMP.GloftA9HM</item>
+        <item>com.ea.game.nfs14_row</item>
+        <item>com.CubeSoftware.BattleOfWarships</item>
+        <item>com.nianticlabs.pokemongo</item>
+
+        <!--12+-->
+        <item>com.tencent.ig</item>
+        <item>com.miniclip.eightballpool</item>
+        <item>com.nexon.bluearchive</item>
+        <item>com.YoStarEN.Arknights</item>
+        <item>jp.co.atm.vcon.ww</item>
+        <item>com.bethsoft.falloutshelter</item>
+        <item>chessfriends.online.chess</item>
+        <item>com.miHoYo.GenshinImpact</item>
+        <item>com.asobimo.toramonline</item>
     </string-array>
 </resources>
