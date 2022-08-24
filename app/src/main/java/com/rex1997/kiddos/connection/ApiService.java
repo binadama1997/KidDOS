@@ -64,8 +64,8 @@ public class ApiService extends BaseActivity {
                     intent.putExtras(dataAge);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(ApiService.this, "ERROR! : Returned empty response", Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "onEmptyResponse => Returned empty response");
+                    Toast.makeText(ApiService.this, "ERROR! : Requests limit reached", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Everypixel API => Requests limit reached");
                     moveTaskToBack(true);
                 }
             }

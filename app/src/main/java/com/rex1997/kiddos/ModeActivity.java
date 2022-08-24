@@ -40,7 +40,7 @@ public class ModeActivity extends BaseActivity {
     private List<AppList> installedApps;
     ListView userInstalledApps;
     private Double age;
-    private Bundle bundle;
+    private Bundle data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +48,16 @@ public class ModeActivity extends BaseActivity {
         setContentView(R.layout.activity_mode);
         setUpKioskMode();
         Intent apiServiceReceived = getIntent();
-        bundle = apiServiceReceived.getExtras();
-        if (bundle != null) {
-            age = bundle.getDouble("Age");
+        data = apiServiceReceived.getExtras();
+        if (data != null) {
+            age = data.getDouble("Age");
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             TextView statusTitle = findViewById(R.id.status_title);
             TextView statusAge = findViewById(R.id.status_age);
             String roundAge = String.valueOf((int) Math.round(age));
             statusTitle.setText(R.string.allowed_app);
-            String setStatusAge = String.format("%s %s", roundAge, R.string.years_old);
-            statusAge.setText(setStatusAge);
+            statusAge.setText(roundAge);
             userInstalledApps = findViewById(R.id.app_list);
             getAppsList(age);
         } else {
@@ -70,8 +69,8 @@ public class ModeActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         startPermission();
     }
 
@@ -159,11 +158,9 @@ public class ModeActivity extends BaseActivity {
             int msg = isLocked ? R.string.setting_device_locked : R.string.setting_device_unlocked;
             kioskMode.lockUnlock(this, isLocked);
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            /*
             if(msg == R.string.setting_device_unlocked){
                 moveTaskToBack(true);
             }
-            */
         });
     }
 
@@ -200,14 +197,14 @@ public class ModeActivity extends BaseActivity {
         } else if (age >= 12 && age < 16){
             Toast.makeText(ModeActivity.this, "You're in 12+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.twelveplus));
-        } else if (age >= 16 && age < 30){
+        } else if (age >= 16 && age < 18){
             Toast.makeText(ModeActivity.this, "You're in 16+ Mode", Toast.LENGTH_LONG).show();
             allowApps = List.of(res.getStringArray(R.array.sixtenplus));
         } else {
             Toast.makeText(ModeActivity.this, "Your age is out of the range between 3-17", Toast.LENGTH_LONG).show();
             kioskMode.lockUnlock(this, true);
-            bundle.clear();
-            finish();
+            data.clear();
+            moveTaskToBack(true);
         }
         for (int i = 0; i < packs.size(); i++) {
             PackageInfo p = packs.get(i);
